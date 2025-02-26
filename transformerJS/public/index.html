@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片分析</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-container {
+            margin: 20px 0;
+        }
+        #preview {
+            max-width: 100%;
+            margin: 20px 0;
+        }
+        #result {
+            white-space: pre-wrap;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>图片分析</h1>
+    <div class="upload-container">
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="uploadImage()">分析图片</button>
+    </div>
+    <img id="preview" style="display: none;">
+    <div id="result"></div>
+
+    <script>
+        function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const preview = document.getElementById('preview');
+            const result = document.getElementById('result');
+            
+            if (!input.files[0]) {
+                alert('请选择图片');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+
+            // 显示预览
+            preview.src = URL.createObjectURL(input.files[0]);
+            preview.style.display = 'block';
+            result.textContent = '处理中...';
+
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                result.textContent = JSON.stringify(data.result, null, 2);
+            })
+            .catch(error => {
+                result.textContent = '错误: ' + error.message;
+            });
+        }
+
+        // 预览选择的图片
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const preview = document.getElementById('preview');
+            preview.src = URL.createObjectURL(e.target.files[0]);
+            preview.style.display = 'block';
+        });
+    </script>
+</body>
+</html> 
